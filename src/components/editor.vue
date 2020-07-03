@@ -104,7 +104,7 @@ export default{
         checkEdited(src_html, start, end, mode){
             let [front_flag, rear_flag] = [0, 0];
             let front_slice = src_html.slice(0, start + 1);
-            let rear_slice = src_html.slice(end, src_html.length);
+            let rear_slice = src_html.slice(end + 1, src_html.length);
             let searchF, searchR;
             if(1 == mode){
                 [searchF, searchR] = ['<i>', '</i>'];
@@ -154,8 +154,7 @@ export default{
             let temp = src;
             let [
                 i_tag, b_tag, ul_tag
-            ] = 
-                [
+            ] = [
                 temp.indexOf(`<i>`), 
                 temp.indexOf(`<b>`), 
                 temp.indexOf(`<u>`)
@@ -177,6 +176,11 @@ export default{
                         .replace('<b>', re0)
                         .replace('</b>', re0)
                     );
+                    [ i_tag, b_tag, ul_tag ] = [
+                        temp.indexOf(`<i>`), 
+                        temp.indexOf(`<b>`), 
+                        temp.indexOf(`<u>`)
+                    ];
                 }
             }
             
@@ -192,6 +196,11 @@ export default{
                         .replace('<b>', re3)
                         .replace('</b>', re4)
                     );
+                    [ i_tag, b_tag, ul_tag ] = [
+                        temp.indexOf(`<i>`), 
+                        temp.indexOf(`<b>`), 
+                        temp.indexOf(`<u>`)
+                    ];
                 }
             }
             return temp;
@@ -230,7 +239,7 @@ export default{
             // ending
             while(true){
                 index2 = rehtml.indexOf(src_last);
-                if(index2 <= index1){
+                if(index2 < index1){
                     rehtml = rehtml.replace(src_last, '\f');
                 }
                 else {
@@ -239,9 +248,8 @@ export default{
             }
             while(true){
                 index2 = rehtml.indexOf(src_last);
-                let slice1 = rehtml.slice(index1, rehtml.length);
-                let slice2 = remove_wrapper(slice1, '\0', 1);
-                if(slice2.indexOf(src_last) + 1 != len){
+                let slice3 = remove_wrapper(rehtml, '\0', 1);
+                if(slice3.indexOf(src_last) + 1 != index1 + len){
                     rehtml = rehtml.replace(src_last, '\f');
                 }else{
                     break;
@@ -264,6 +272,13 @@ export default{
             let rear_slice = this.input_portal.value.slice(temp_end, end);
             */
             let end = portal.value.length;
+            debugger;
+            [temp_start, temp_end] = this.find_html(
+                this.htmlText, 
+                temp, 
+                temp_start, temp_end - temp_start
+            );
+            temp_end += 1;
             let front_slice = portal.value.slice(0, temp_start);
             let rear_slice = portal.value.slice(temp_end, end);
             let changed = null;
