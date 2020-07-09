@@ -12,7 +12,9 @@
         <el-button class="btn" type="primary" @click="underline">下划线</el-button>
         <el-button class="btn" type="primary" @click="clear">清空</el-button>
         <el-button class="btn" type="primary" @click="save">保存</el-button>
+        <!--
         <el-button class="btn" type="primary" @click="test">测试</el-button>
+        -->
         
     </div>
 </template>

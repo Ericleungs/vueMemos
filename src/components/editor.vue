@@ -58,11 +58,24 @@ export default{
     name: 'editor',
     data(){
         return {
-            // flags
-            flag:{
-                isItalic: 0,
-                isBold: 0,
-                isUnderlined: 0
+            // buffer Area
+            Buffer:{
+                // positions
+                startEdited: 0,
+                endEdited: 0,
+                lastEdited: 0,
+                // flags
+                timerLocked: false,
+                firstLocked: false,
+                // buffers
+                buffer1: null,
+                buffer2: null,
+                // timer
+                timer: null,
+                timeElapse: 10000,
+                // lengths
+                bufferLen: 0,
+                editedLen: 0
             },
 
             // text data
@@ -301,23 +314,17 @@ export default{
         },
         italic_operation(flag){
             if(flag == 1){
-                if(0 == this.flag.isItalic){
-                    this.htmlText = this.changeStyle(1);
-                }
+                this.htmlText = this.changeStyle(1);
             }
         },
         bold_operation(flag){
             if(1 == flag){
-                if(0 == this.flag.isBold){
-                    this.htmlText = this.changeStyle(2);
-                }
+                this.htmlText = this.changeStyle(2);
             }
         },
         underline_operation(flag){
             if(1 == flag){
-                if(0 == this.flag.isUnderlined){
-                    this.htmlText = this.changeStyle(3);
-                }
+                this.htmlText = this.changeStyle(3);
             }
         },
         clearText(flag){
@@ -327,6 +334,29 @@ export default{
                 this.tempText = this.empty;
                 this.htmlText = this.empty;
             }
+        },
+        recordBuffer(){
+            let portal = document.getElementById('editor_main');
+            let buffer = this.Buffer;
+            // this.Buffer.firstLocked = false;
+            this.Buffer.endEdited = this.Buffer.startEdited + this.Buffer
+            if(this.Buffer.startEdited != this.Buffer.endEdited){
+                let slice1 = portal.value.slice(0, this.Buffer.startEdited + 1);
+                let slice2 = portal.valie.slice(this.Buffer.startEdited, this.Buffer.endEdited);
+                let [...end] = this.find_html(this.htmlText, slice1, 0, slice1.length);
+                end++;
+                // start to push in buffer
+                if(this.Buffer.buffer1 == null && this.Buffer.buffer2 == null){
+                    this.Buffer.buffer1 = slice2;
+                }
+                else if(this.Buffer.buffer1 != null){
+                    this.Buffer.buffer2 = this.Buffer.buffer1;
+                    this.Buffer.buffer1 = slice2;
+                }
+                this.Buffer.firstLocked = false;
+                this.Buffer.lastEdited = this.Buffer.startEdited;
+                this.Buffer.editedLen = this.Buffer.bufferLen;
+            }
         }
     },
     created(){
@@ -335,9 +365,32 @@ export default{
         document.onkeyup = () => {
             // keyCatcher 传送门
             // let keyCatcher = this.input_portal.value;
+            /*
             let keyCatcher = document.getElementById("editor_main").value;
             this.tempText = keyCatcher;
             this.htmlText = keyCatcher;
+            */
+            if(this.Buffer.timerLocked == false){
+                this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+                this.Buffer.timerLocked = true;
+            }
+            else{
+                clearTimeout(this.Buffer.timer);
+                this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+            }
+        }
+        document.onkeydown = () => {
+            // keycode here
+            // currently not to search keyCode
+            let portal = document.getElementById('editor_main');
+            if(portal.selectionStart != portal.selectionEnd){
+                if(this.Buffer.firstLocked == false){
+                    this.Buffer.startEdited = portal.selectionStart;
+                    this.Buffer.firstLocked = true;
+                }
+                this.Buffer.bufferLen++;
+            }
+            console.log(this.Buffer.bufferLen);
         }
         /*
         document.onmouseup = () =>{
