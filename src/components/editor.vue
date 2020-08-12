@@ -172,9 +172,7 @@ export default{
                 temp.indexOf(`<b>`), 
                 temp.indexOf(`<u>`)
             ];  // -1
-            let [
-                re0, re3, re4
-            ] = [
+            let [re0, re3, re4] = [
                 ``, `\0\0\0`, `\0\0\0\0`
             ];
             // clear mode
@@ -234,7 +232,6 @@ export default{
             let src_first = src[0];
             let src_last = src[len - 1];
             let [index1, index2] = [0, 0];
-            // debugger;
             // replace tags into unused ASCII letter
             let rehtml = whole_wrapper(html, 1);
             let start = src_start;
@@ -243,6 +240,7 @@ export default{
                 index1 = rehtml.indexOf(src_first);
                 let slice1 = rehtml.slice(0, index1 + 1);
                 let slice2 = remove_wrapper(slice1, '\0', 1);
+                
                 if(slice2.indexOf(src_first) != start){
                     rehtml = rehtml.replace(src_first, '\f');
                 }else{
@@ -260,11 +258,24 @@ export default{
                 }
             }
             while(true){
+                /*
                 index2 = rehtml.indexOf(src_last);
+                if(-1 === index2)
+                    break;
                 let slice3 = remove_wrapper(rehtml, '\0', 1);
                 if(slice3.indexOf(src_last) + 1 != index1 + len){
                     rehtml = rehtml.replace(src_last, '\f');
                 }else{
+                    break;
+                }
+                */
+                let slice3 = rehtml.slice(index1, rehtml.length + 1);
+                index2 = slice3.indexOf(src_last);
+                let slice4 = remove_wrapper(slice3, '\0', 1);
+                if(slice4.indexOf(src_last) + 1 != len){
+                    rehtml = rehtml.replace(src_last, '\f');
+                }else{
+                    index2 += index1;
                     break;
                 }
             }
@@ -278,22 +289,27 @@ export default{
             ] = this.getTextSelection();
             
             let portal = document.getElementById('editor_main');
+            let show_portal = document.getElementById('show_pad');
             let start = 0;
             /*
             let end = this.input_portal.value.length;
             let front_slice = this.input_portal.value.slice(0, temp_start);
             let rear_slice = this.input_portal.value.slice(temp_end, end);
             */
-            let end = portal.value.length;
-            debugger;
+            let end = show_portal.innerHTML.length;
             [temp_start, temp_end] = this.find_html(
-                this.htmlText, 
+                // this.htmlText, 
+                show_portal.innerHTML,
                 temp, 
                 temp_start, temp_end - temp_start
             );
             temp_end += 1;
+            /*
             let front_slice = portal.value.slice(0, temp_start);
             let rear_slice = portal.value.slice(temp_end, end);
+            */
+            let front_slice = show_portal.innerHTML.slice(0, temp_start);
+            let rear_slice = show_portal.innerHTML.slice(temp_end, end);
             let changed = null;
 
             // mode select
@@ -330,11 +346,11 @@ export default{
         clearText(flag){
             if(1 === flag){
                 // this.input_portal.value = this.empty;
-                document.getElementById("editor_main").value = this.empty;
                 this.tempText = this.empty;
                 this.htmlText = this.empty;
             }
         },
+        // Unable to test it
         recordBuffer(){
             let portal = document.getElementById('editor_main');
             let buffer = this.Buffer;
@@ -357,6 +373,34 @@ export default{
                 this.Buffer.lastEdited = this.Buffer.startEdited;
                 this.Buffer.editedLen = this.Buffer.bufferLen;
             }
+        },
+        resetLock(){
+            if(this.Buffer.timerLocked == false){
+                this.Buffer.timerLocked = true;
+                // this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+                this.Buffer.timer = 
+                    setTimeout(this.recordBuffer.bind(this), this.Buffer.timeElapse);
+            }
+            else{
+                clearTimeout(this.Buffer.timer);
+                // this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+                this.Buffer.timer = 
+                    setTimeout(this.recordBuffer.bind(this), this.Buffer.timeElapse);
+            }
+        },
+        save(title){
+            // null article
+            if(0 === title.length || title == "" || title == "请输入标题"){
+                console.log("save operation error\n");
+                return -1;
+            }else{
+                // let toSave = this.htmlText;
+                let toSave = this.htmlText;
+                // format: JSON
+                localStorage.setItem(title, toSave);
+                alert('Saved successfully');
+            }
+            return 0;
         }
     },
     created(){
@@ -365,11 +409,13 @@ export default{
         document.onkeyup = () => {
             // keyCatcher 传送门
             // let keyCatcher = this.input_portal.value;
-            /*
+            
             let keyCatcher = document.getElementById("editor_main").value;
             this.tempText = keyCatcher;
             this.htmlText = keyCatcher;
-            */
+            
+            
+            /*
             if(this.Buffer.timerLocked == false){
                 this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
                 this.Buffer.timerLocked = true;
@@ -378,8 +424,12 @@ export default{
                 clearTimeout(this.Buffer.timer);
                 this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
             }
+            */
+            
+            // this.resetLock();
         }
         document.onkeydown = () => {
+            /*
             // keycode here
             // currently not to search keyCode
             let portal = document.getElementById('editor_main');
@@ -391,6 +441,7 @@ export default{
                 this.Buffer.bufferLen++;
             }
             console.log(this.Buffer.bufferLen);
+            */
         }
         /*
         document.onmouseup = () =>{
@@ -405,21 +456,21 @@ export default{
             console.log(this.msg);
         });
         
-        // italic signal
+        // signal receiver
         bin.$on('italic', 
-            (flag)=> this.italic_operation(flag)
+            (flag) => this.italic_operation(flag)
         );
-        // bold signal
         bin.$on('bold',
             (flag) => this.bold_operation(flag)
         );
-        // underline signal
         bin.$on('underline',
             (flag) => this.underline_operation(flag)
         );
-        // clear signal
         bin.$on('clear', 
             (flag) => this.clearText(flag)
+        );
+        bin.$on('save', 
+            (title) => this.save(title)
         );
         // test selector signal
         bin.$on('test',
@@ -452,5 +503,8 @@ export default{
     margin-left: 35px;
     text-align: left;
     white-space: pre-wrap;
+    /*
+        pre-wrap: 遇到换行不换行
+    */
 }
 </style>

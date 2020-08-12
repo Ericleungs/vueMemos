@@ -37,12 +37,19 @@ var editor_pach = {
     },
     methods:{
         resetLock(){
-
+            if(this.Buffer.timerLocked == false){
+                this.Buffer.timerLocked = true;
+                this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+            }
+            else{
+                clearTimeout(this.Buffer.timer);
+                this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
+            }
         }
     },
     created(){
         document.onkeydown = () => {
-            
+            this.resetLock();
         }
     }
 }
