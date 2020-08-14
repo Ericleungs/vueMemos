@@ -14,8 +14,7 @@
         <el-button class="btn" type="primary" @click="save">保存</el-button>
         <!--
         <el-button class="btn" type="primary" @click="test">测试</el-button>
-        -->
-        
+        -->        
     </div>
 </template>
 
@@ -27,7 +26,7 @@ export default{
     data(){
         return {
             title: '请输入标题',
-            h: 'helloworld!'
+            h: 'helloworld!',
         }
     },
     methods:{
@@ -36,7 +35,7 @@ export default{
         },
 
         // communicate to editor
-        // by using inter event file :
+        // by using media event file :
         // bin.js
         save(){
             bin.$emit("save", this.title);

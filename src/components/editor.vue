@@ -16,11 +16,7 @@
             class="show_pad2"
             v-html="htmlText"
         >
-        </div>
-
-        
-
-        
+        </div>        
         <!--
             replacement
         <input 
@@ -31,6 +27,7 @@
             v-html="italicText"
         >
         -->
+        
     </div>
 </template>
 
@@ -390,15 +387,32 @@ export default{
         },
         save(title){
             // null article
+            debugger;
+            let counts = 0;
             if(0 === title.length || title == "" || title == "请输入标题"){
                 console.log("save operation error\n");
                 return -1;
-            }else{
-                // let toSave = this.htmlText;
-                let toSave = this.htmlText;
+            }
+            else{
+                let db_name = 'title_index';
                 // format: JSON
-                localStorage.setItem(title, toSave);
-                alert('Saved successfully');
+                let content = this.htmlText;
+                let title_index = localStorage.getItem('title_index');
+
+                // save title
+                if(title_index[0] === 'no_articles_here'){
+                    localStorage.setItem('title_index', title);
+                }else{
+                    let temp_index = localStorage.getItem('title_index');
+                    temp_index += `\0${title}`;
+                    localStorage.setItem('title_index', temp_index);
+                }
+
+                // save article
+                localStorage.setItem(title, content);
+                // alert('Saved successfully!');
+                counts += 1;
+                console.log(counts);
             }
             return 0;
         }
@@ -478,6 +492,9 @@ export default{
             (flag) => this.testSelect(flag)
         );
     },
+    mounted(){
+
+    }
 }
 </script>
 
