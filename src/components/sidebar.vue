@@ -29,7 +29,15 @@
 
 
 <script>
-import bin from '@/components/bin.js'
+import bin from '@/components/bin.js';
+
+// to remove element by content
+var deleteByLabel = function(src_array, label){
+    src_array.splice(src_array.indexOf(label), 1);
+    let tar_array = src_array;
+    return tar_array;
+}
+
 export default{
     name: "sidebar",
     data(){
@@ -51,47 +59,103 @@ export default{
             console.log(`selection here ${date}`);
         },
         expandContent(node){
-            console.log(node);
+            // console.log(node);
         },
         showRtBtnMenu(e, data, node, comp){
-            /*
-            console.log(e);
-            console.log(data);
-            console.log(node);
-            console.log(comp);
-            */
+            this.node.nodeData = data;
+            this.node.node = node;
             let x = e.clientX;
             let y = e.clientY;
             bin.$emit('showRtBtnMenu', [x, y]);
-            /*
-            let sideList = document.getElementById('sideList');
-            sideList.oncontextmenu = function(e){
-                e.preventDefault();
-                bin.$emit('rtBtnMenu', 1);
-            }
-            */
-            
         },
         reloadMenu(){
             let title_index = localStorage.getItem('title_index');
+            if(title_index.length === 0){
+                this.selection = null;
+                return 0;
+            }
             let article_set = title_index.split('\0');
             let counts = article_set.length;
             localStorage.setItem('counts', counts);
             let temp_dataset = [];
-            for(let i = 0; i < article_set.length; i++){
+            for(let i = 0; i < counts; i++){
                 let content = localStorage.getItem(article_set[i]);
                 temp_dataset = temp_dataset.concat({
                     label: article_set[i],
                     children:[{label: content}]
                 });
             }
-            this.selection = this.selection.concat(temp_dataset);
+            this.selection = temp_dataset;
+        },
+        rename(){
+            let temp_node = this.node.node;
+            let beforeName = null;
+            // descendant
+            if(temp_node.childNodes.length == 0){
+                beforeName = temp_node.parent.data.label;
+            }
+            // parent
+            else{
+                beforeName = temp_node.data.label;
+            }
+            if(this.node.nodeData == null || this.node.node == null){
+                alert('重命名非法！');
+                return -1;
+            }
+            let rename_dialog = prompt('请输入新的名字');
+            let aftName = rename_dialog;
+            if(aftName == null){
+                alert('重命名为空！');
+            }
+            else if(aftName == beforeName){
+                alert('名字与之前的重复！');
+            }
+            else{
+                let title_set = localStorage.getItem('title_index');
+                let temp_content = localStorage.getItem(beforeName);
+                // to divide into array
+                title_set = title_set.split('\0');
+                // title_set.splice(title_set.indexOf(beforeName), 1);
+                title_set = deleteByLabel(title_set, beforeName);
+                title_set.push(aftName);
+                title_set.sort();
+                // to compose into a store string
+                title_set = title_set.join('\0');
+                localStorage.setItem('title_index', title_set);
+                localStorage.setItem(aftName, temp_content);
+                localStorage.removeItem(beforeName);
+                this.reloadMenu();
+            }
+            this.closeMenu();
+        },
+        deleteNode(){
+            let temp_node = this.node.node;
+            let nodeName = null;
+            // descendant
+            if(temp_node.childNodes.length == 0){
+                nodeName = temp_node.parent.data.label;
+            }
+            // parent
+            else{
+                nodeName = temp_node.data.label;
+            }
+            let title_index = localStorage.getItem('title_index');
+            let temp_content = localStorage.getItem(nodeName);
+            title_index = title_index.split('\0');
+            title_index = deleteByLabel(title_index, nodeName);
+            localStorage.removeItem(nodeName);
+            localStorage.setItem('title_index', title_index);
+            this.reloadMenu();
+            this.closeMenu();
+        },
+        closeMenu(){
+            bin.$emit('rtBtnMenu', 'close');
         }
     },
     created(){
         // initialization
         let counter = localStorage.getItem('counts');
-        if(counter === null){
+        if(counter == null){
             localStorage.setItem('counts', 0);
         }
         let title_index = localStorage.getItem('title_index');
@@ -109,18 +173,16 @@ export default{
                 if(flag == 'refresh'){
                     this.reloadMenu();
                 }
+                else if(flag == 'rename'){
+                    this.rename();
+                }
+                else if(flag == 'delete'){
+                    this.deleteNode();
+                }
             }
-        )
-        
+        );
     },
     mounted(){
-        /*
-        let sideList = document.getElementById('sideList');
-        sideList.oncontextmenu = function(e){
-            e.preventDefault();
-            bin.$emit('rtBtnMenu', 1);
-        }
-        */
     }
 }
 </script>

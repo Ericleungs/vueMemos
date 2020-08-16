@@ -387,7 +387,6 @@ export default{
         },
         save(title){
             // null article
-            debugger;
             let counts = 0;
             if(0 === title.length || title == "" || title == "请输入标题"){
                 console.log("save operation error\n");
@@ -398,13 +397,15 @@ export default{
                 // format: JSON
                 let content = this.htmlText;
                 let title_index = localStorage.getItem('title_index');
-
                 // save title
-                if(title_index[0] === 'no_articles_here'){
+                if(title_index == ''){
                     localStorage.setItem('title_index', title);
                 }else{
                     let temp_index = localStorage.getItem('title_index');
-                    temp_index += `\0${title}`;
+                    temp_index = temp_index.split('\0');
+                    temp_index.push(`${title}`);
+                    temp_index.sort();
+                    temp_index = temp_index.join('\0');
                     localStorage.setItem('title_index', temp_index);
                 }
 

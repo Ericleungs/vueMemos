@@ -39,50 +39,17 @@ export default{
                 // micro adjustment, the source is x without bias
                 this.x = x + 'px';
                 this.y = y + 'px';
-                console.log([this.x, this.y]);
             }
         );
-        /*
-        bin.$on('rtBtnOption',
-            (flags) => {
-                if(args === 1){
-                    this.vis = 'visible';
-                }
-                else if(args === 'close'){
-                    this.vis = 'hidden';
-                }
-                else if(arguments === 'rename'){
-
+        bin.$on('rtBtnMenu', 
+            (flag) => {
+                if(flag == 'close'){
+                    this.rtbtnSelection('close');
                 }
             }
         );
-        */
     },
     mounted(){
-        /*
-        document.oncontextmenu = function(receive_event){
-            let e = receive_event || window.event;
-            let menu = document.getElementById('menu');
-
-            // get mouse x and y
-            let x = e.clientX;
-            let y = e.clientY;
-
-            // get window width and height
-            let w = window.innerWidth;
-            let h = window.innerHeight;
-
-            // adjust width and height
-            menu.style.left = Math.min(w - 202, x) + 'px';
-            menu.style.right = Math.min(h - 230, y) + 'px';
-
-            // remove default right button menu
-            return false;
-        }
-        document.onclick = function(){
-            let contextmenu = document.getElementById('menu');
-            contextmenu.style.display = 'none';
-        }*/
     },
     methods:{
         rtbtnSelection(option){
@@ -94,6 +61,9 @@ export default{
             }
             else if(option == 'refresh'){
                 this.refresh();
+            }
+            else if(option == 'delete'){
+                bin.$emit('rtBtnMenu', 'delete');
             }
         },
         refresh(){
