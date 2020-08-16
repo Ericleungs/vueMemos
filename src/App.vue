@@ -3,6 +3,7 @@
     <sidebar></sidebar>
     <headbox></headbox>
     <editor></editor>
+    <rtbutton></rtbutton>
   </div>
 </template>
 
@@ -10,18 +11,21 @@
 import sidebar from '@/components/sidebar'
 import editor from '@/components/editor'
 import headbox from '@/components/headbox'
+import rtbutton from '@/components/rtbutton'
+import bin from '@/components/bin.js'
 export default {
   name: 'App',
   components: {
     sidebar,
     editor,
-    headbox
+    headbox,
+    rtbutton
   },
   methods:{
     a(){
       console.log(`helloworld`);
     }
-  }
+  },
 }
 </script>
 

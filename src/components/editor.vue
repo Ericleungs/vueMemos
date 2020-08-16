@@ -411,8 +411,7 @@ export default{
                 // save article
                 localStorage.setItem(title, content);
                 // alert('Saved successfully!');
-                counts += 1;
-                console.log(counts);
+                bin.$emit('rtBtnMenu', 'refresh');
             }
             return 0;
         }

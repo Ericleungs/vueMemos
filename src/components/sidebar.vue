@@ -1,7 +1,6 @@
 <template>
     <div>
-        <el-container>
-            
+        <el-container id='sideList'>
             <el-tree class="sidebar"
                 :data="selection"
                 :props="selection_props"
@@ -10,6 +9,7 @@
                 :highlight-current="true" 
                 ref="tree"
                 @node-click="expandContent"
+                @node-contextmenu="showRtBtnMenu"
             >
             <!--
             <el-tree class="sidebar"
@@ -29,6 +29,7 @@
 
 
 <script>
+import bin from '@/components/bin.js'
 export default{
     name: "sidebar",
     data(){
@@ -37,7 +38,11 @@ export default{
                 children: 'children',
                 label: 'label'
             },
-            selection:[]
+            selection:[],
+            node:{
+                nodeData: null,
+                node: null,
+            }
         }
     },
     methods:{
@@ -47,22 +52,32 @@ export default{
         },
         expandContent(node){
             console.log(node);
-        }
-    },
-    created(){
-        // initialization
-        let counter = localStorage.getItem('counts');
-        if(counter === null){
-            localStorage.setItem('counts', 0);
-        }
-        let title_index = localStorage.getItem('title_index');
-        if(title_index === null){
-            localStorage.setItem('title_index', 'no_articles_here');
-        }
-        else{
+        },
+        showRtBtnMenu(e, data, node, comp){
+            /*
+            console.log(e);
+            console.log(data);
+            console.log(node);
+            console.log(comp);
+            */
+            let x = e.clientX;
+            let y = e.clientY;
+            bin.$emit('showRtBtnMenu', [x, y]);
+            /*
+            let sideList = document.getElementById('sideList');
+            sideList.oncontextmenu = function(e){
+                e.preventDefault();
+                bin.$emit('rtBtnMenu', 1);
+            }
+            */
+            
+        },
+        reloadMenu(){
+            let title_index = localStorage.getItem('title_index');
             let article_set = title_index.split('\0');
+            let counts = article_set.length;
+            localStorage.setItem('counts', counts);
             let temp_dataset = [];
-            // loading
             for(let i = 0; i < article_set.length; i++){
                 let content = localStorage.getItem(article_set[i]);
                 temp_dataset = temp_dataset.concat({
@@ -72,7 +87,40 @@ export default{
             }
             this.selection = this.selection.concat(temp_dataset);
         }
+    },
+    created(){
+        // initialization
+        let counter = localStorage.getItem('counts');
+        if(counter === null){
+            localStorage.setItem('counts', 0);
+        }
+        let title_index = localStorage.getItem('title_index');
+        if(title_index != null){
+            let article_set = title_index.split('\0');
+            let counts = article_set.length;
+            localStorage.setItem('counts', counts);
+            let temp_dataset = [];
+            // loading
+            this.reloadMenu();
+        }
+        // right button menu receiver
+        bin.$on('rtBtnMenu',
+            (flag) => {
+                if(flag == 'refresh'){
+                    this.reloadMenu();
+                }
+            }
+        )
         
+    },
+    mounted(){
+        /*
+        let sideList = document.getElementById('sideList');
+        sideList.oncontextmenu = function(e){
+            e.preventDefault();
+            bin.$emit('rtBtnMenu', 1);
+        }
+        */
     }
 }
 </script>
