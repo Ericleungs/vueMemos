@@ -2,6 +2,7 @@
     <div class="editor_bgc">
         <el-input 
             id="editor_main"
+            ref="editor_main"
             class="editor_main2" 
             type="textarea" 
             v-model="tempText"
@@ -14,6 +15,7 @@
         <div 
             id="show_pad"
             class="show_pad2"
+            ref="show_pad"
             v-html="htmlText"
         >
         </div>        
@@ -79,9 +81,6 @@ export default{
             empty: "",
             htmlText: "内容将会在这里显示",
             tempText: "",
-
-            // portals
-            input_portal: document.getElementById('editor_main'),
 
             box_size: {
                 minRows: 14
@@ -415,6 +414,13 @@ export default{
                 bin.$emit('rtBtnMenu', 'refresh');
             }
             return 0;
+        },
+        read_content(title){
+            let temp_content = localStorage.getItem(title);
+            this.htmlText = temp_content;
+            
+            temp_content = this.whole_wrapper(temp_content, 0);
+            this.tempText = temp_content;
         }
     },
     created(){
@@ -485,6 +491,9 @@ export default{
         );
         bin.$on('save', 
             (title) => this.save(title)
+        );
+        bin.$on('content',
+            (title) => this.read_content(title)
         );
         // test selector signal
         bin.$on('test',

@@ -76,7 +76,7 @@ export default{
 
 <style scoped>
 .rtmenu_decorator{
-    width: 200px;
+    width: 150px;
     border: 1px solid #999;
     box-shadow: 3px 3px 3px #ccc;
     background-color: #fff;

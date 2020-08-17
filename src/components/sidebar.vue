@@ -58,8 +58,19 @@ export default{
             // no effects
             console.log(`selection here ${date}`);
         },
-        expandContent(node){
-            // console.log(node);
+        expandContent(data, node, comp){
+            this.node.node = node;
+            this.node.nodeData = data;
+            let temp_node = this.node.node;
+            // descendant node
+            if(temp_node.childNodes.length == 0){
+                bin.$emit('content', temp_node.parent.data.label);
+            }
+            // parent node
+            else{
+                // nothing need to do
+                // console.log('this is parent node');
+            }
         },
         showRtBtnMenu(e, data, node, comp){
             this.node.nodeData = data;

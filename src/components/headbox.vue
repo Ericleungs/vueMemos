@@ -54,8 +54,17 @@ export default{
         },
         testSelect(){
             bin.$emit("test", 1);
-        }
+        },
         // communicate to editor above
+
+        read_title(title){
+            this.title = title;
+        }
+    },
+    created(){
+        bin.$on('content', 
+            (title) => this.read_title(title)
+        );
     }
 }
 </script>
