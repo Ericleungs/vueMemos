@@ -82,8 +82,16 @@ export default{
             htmlText: "内容将会在这里显示",
             tempText: "",
 
+            // flag
+            edit_status: -1,
+
+            // info
             box_size: {
                 minRows: 14
+            },
+            mouse_focus: {
+                focus_start: 0,
+                focus_end: 0
             },
             msg: ""
         }
@@ -223,14 +231,25 @@ export default{
             return src;
         },
         find_html(html, src, src_start, len){
+            // abnormal conditions
+            if(src_start > html.length){
+                console.log('abnormal parameters\n');
+                return -1;
+                // force to exit with return operations
+            }else if(src_start + len > html.length){
+                console.log('too long string');
+                return -1;
+            }
             let whole_wrapper = this.whole_wrapper;
             let remove_wrapper = this.remove_wrapper;
-            let src_first = src[0];
-            let src_last = src[len - 1];
             let [index1, index2] = [0, 0];
             // replace tags into unused ASCII letter
             let rehtml = whole_wrapper(html, 1);
             let start = src_start;
+            let null_clock = false;
+            let src_first = src[0];
+            let src_last = src[len - 1];
+        
             // starting
             while(true){
                 index1 = rehtml.indexOf(src_first);
@@ -254,17 +273,6 @@ export default{
                 }
             }
             while(true){
-                /*
-                index2 = rehtml.indexOf(src_last);
-                if(-1 === index2)
-                    break;
-                let slice3 = remove_wrapper(rehtml, '\0', 1);
-                if(slice3.indexOf(src_last) + 1 != index1 + len){
-                    rehtml = rehtml.replace(src_last, '\f');
-                }else{
-                    break;
-                }
-                */
                 let slice3 = rehtml.slice(index1, rehtml.length + 1);
                 index2 = slice3.indexOf(src_last);
                 let slice4 = remove_wrapper(slice3, '\0', 1);
@@ -287,23 +295,14 @@ export default{
             let portal = document.getElementById('editor_main');
             let show_portal = document.getElementById('show_pad');
             let start = 0;
-            /*
-            let end = this.input_portal.value.length;
-            let front_slice = this.input_portal.value.slice(0, temp_start);
-            let rear_slice = this.input_portal.value.slice(temp_end, end);
-            */
+            let len = temp_end - temp_start;
             let end = show_portal.innerHTML.length;
             [temp_start, temp_end] = this.find_html(
-                // this.htmlText, 
                 show_portal.innerHTML,
                 temp, 
-                temp_start, temp_end - temp_start
+                temp_start, len
             );
             temp_end += 1;
-            /*
-            let front_slice = portal.value.slice(0, temp_start);
-            let rear_slice = portal.value.slice(temp_end, end);
-            */
             let front_slice = show_portal.innerHTML.slice(0, temp_start);
             let rear_slice = show_portal.innerHTML.slice(temp_end, end);
             let changed = null;
@@ -421,6 +420,17 @@ export default{
             
             temp_content = this.whole_wrapper(temp_content, 0);
             this.tempText = temp_content;
+        },
+        editor_focus_func(){
+            // when mouse is on editor
+            // activate listener
+            let editor_main = document.getElementById('editor_main');
+            document.onmousedown = () => {
+                this.mouse_focus.focus_start = editor_main.selectionStart;
+            }
+            document.onmouseup = () => {
+                this.mouse_focus.focus_end = editor_main.selectionEnd;
+            }
         }
     },
     created(){
@@ -430,11 +440,13 @@ export default{
             // keyCatcher 传送门
             // let keyCatcher = this.input_portal.value;
             
+            /*
             let keyCatcher = document.getElementById("editor_main").value;
             this.tempText = keyCatcher;
             this.htmlText = keyCatcher;
+            */
             
-            
+            // buffer area
             /*
             if(this.Buffer.timerLocked == false){
                 this.Buffer.timer = setTimeout('this.recordBuffer()', this.Buffer.timeElapse);
@@ -463,14 +475,6 @@ export default{
             console.log(this.Buffer.bufferLen);
             */
         }
-        /*
-        document.onmouseup = () =>{
-            // test Html Catch
-            let selected = (window.getSelection()).toString();
-            let [front, rear] = this.find_html(this.htmlText, selected, selected.length);
-            console.log(`F:${front}, R:${rear}\n`);
-        }
-        */
         bin.$on('aaa', (msg)=>{
             this.msg = msg;
             console.log(this.msg);
@@ -501,8 +505,113 @@ export default{
             (flag) => this.testSelect(flag)
         );
     },
-    mounted(){
+    watch:{
+        tempText(){
+            let debug_lock = 0;
+            let placeholder = "内容将会在这里显示";
+            let editor_main = document.getElementById('editor_main');
+            let show_pad = document.getElementById('show_pad');
+            let htmlLen = show_pad.innerHTML.length;
+            let [keyStart, keyEnd] = [editor_main.selectionStart, editor_main.selectionEnd];
+            let [mouseStart, mouseEnd] = [this.mouse_focus.focus_start, this.mouse_focus.focus_end];
+            let [reStart, reEnd] = [0, 0];
+            let selectedLen = mouseEnd - mouseStart;
+            let sliced = null;
+            let html = this.htmlText;
+            let text = this.tempText;
 
+            if(mouseStart > mouseEnd)
+                [mouseStart, mouseEnd] = [mouseEnd, mouseStart];
+
+            // null box condition
+            if(0 === htmlLen || html === placeholder){
+                sliced = '';
+                [html, this.htmlText] = ['', ''];
+                this.htmlText = this.tempText;
+                // force to exit with return
+                this.edit_status = 0;
+                return 0;
+            }
+            /*
+            // selection mode
+            if(mouseStart != mouseEnd){
+                sliced = editor_main.value.slice(start - 1, end);
+                debugger;
+            }
+            // non-selection mode
+            if(mouseStart == mouseEnd){
+                // selected area > 1
+                // focus only
+                // without multi-selection
+                selectedLen += 1;
+            }
+            // simple append mode
+            if(keyEnd == text.length || mouseEnd == text.length){
+                this.htmlText += text[text.length - 1];
+                this.edit_status = 1;
+                return 1;
+            }
+            */
+
+            let editor_len = editor_main.value.length;
+            let selectedStart = 0;
+            if(mouseStart == mouseEnd){
+                selectedLen = 1;
+                selectedStart = keyStart - 2;
+                sliced = editor_main.value.slice(keyStart - 2, keyStart - 1);
+            }
+            if(mouseStart != mouseEnd){
+                if(mouseStart < keyStart){
+                    /*
+                        CAUTION:
+                        here is to solve after re-formation,
+                        solved bug: mouse focus still don't move
+                    */
+                    [this.mouse_focus.focus_start, this.mouse_focus.focus_end] = 
+                        [keyStart, keyEnd];
+                    [mouseStart, mouseEnd] = [keyStart, keyEnd]; // Just for easy to look up
+                    sliced = editor_main.value[mouseEnd - 2];
+                    selectedStart = keyStart;
+                    selectedLen = 1;
+                }
+                else{
+                    selectedStart = mouseStart;
+                    sliced = editor_main.value.slice(mouseStart, mouseEnd);
+                }
+                /*
+                    CAUTION: 
+                    when it start to enter words,
+                    mouse will exit multi-selection condition
+                    and then change into append mode
+                */
+            }
+            debugger;
+            
+            [reStart, reEnd] = this.find_html(
+                html, sliced, selectedStart, selectedLen
+            );
+            reStart++;
+            reEnd++;
+
+            let front_slice = html.slice(0, reStart);
+            let rear_slice = html.slice(reEnd, html.length);
+            
+            let changed = editor_main.value[reStart];
+            if(this.htmlText.indexOf('<b>') != -1){
+                debug_lock = 1;
+            }
+            if(debug_lock == 1){
+                debugger;
+                debug_lock = 0;
+            }
+            // debugger;
+            let temp_string = front_slice + changed + rear_slice;
+            this.htmlText = temp_string;
+        }
+    },
+    mounted(){
+        let editor_main_listener = this.$refs.editor_main;
+        editor_main_listener.onfocus = this.editor_focus_func();
     }
 }
 </script>

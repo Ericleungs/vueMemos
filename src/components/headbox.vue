@@ -14,7 +14,7 @@
         <el-button class="btn" type="primary" @click="save">保存</el-button>
         <!--
         <el-button class="btn" type="primary" @click="test">测试</el-button>
-        -->        
+        -->
     </div>
 </template>
 

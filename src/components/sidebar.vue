@@ -99,6 +99,7 @@ export default{
             this.selection = temp_dataset;
         },
         rename(){
+            this.closeMenu();
             let temp_node = this.node.node;
             let beforeName = null;
             // descendant
@@ -137,7 +138,6 @@ export default{
                 localStorage.removeItem(beforeName);
                 this.reloadMenu();
             }
-            this.closeMenu();
         },
         deleteNode(){
             let temp_node = this.node.node;

@@ -95,5 +95,6 @@ export default{
     background-color: #ccc;
     font-weight: bold;
     color: #777;
+    cursor: pointer;
 }
 </style>
