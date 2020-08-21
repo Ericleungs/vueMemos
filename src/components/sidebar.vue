@@ -1,7 +1,7 @@
 <template>
     <div>
-        <el-container id='sideList'>
-            <el-tree class="sidebar"
+        <el-container id='sideList' class='sidebar'>
+            <el-tree class="treebar"
                 :data="selection"
                 :props="selection_props"
                 
@@ -59,6 +59,7 @@ export default{
             console.log(`selection here ${date}`);
         },
         expandContent(data, node, comp){
+            bin.$emit('skip-edit', 0);
             this.node.node = node;
             this.node.nodeData = data;
             let temp_node = this.node.node;
@@ -201,9 +202,16 @@ export default{
 
 <style scoped>
 .sidebar{
-    float: left;
+    border: 1px solid #000;
     width: 200px;
     height: 700px;
+}
+.treebar{
+    float: left;
+    width: 200px;
+    height: 500px;
     margin-top: 100px;
+    box-sizing: border-box;
+    border-top: 1px solid #000;
 }
 </style>

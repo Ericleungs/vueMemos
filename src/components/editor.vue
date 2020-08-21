@@ -84,6 +84,7 @@ export default{
 
             // flag
             edit_status: -1,
+            skip_edit: false,
 
             // info
             box_size: {
@@ -246,12 +247,18 @@ export default{
             // replace tags into unused ASCII letter
             let rehtml = whole_wrapper(html, 1);
             let start = src_start;
-            let null_clock = false;
+            let null_clock = 0;
             let src_first = src[0];
             let src_last = src[len - 1];
         
             // starting
             while(true){
+                null_clock += 1;
+                if(null_clock > 10000){
+                    console.log('Iteration Error, code: 1');
+                    null_clock = 0;
+                    break;
+                }
                 index1 = rehtml.indexOf(src_first);
                 let slice1 = rehtml.slice(0, index1 + 1);
                 let slice2 = remove_wrapper(slice1, '\0', 1);
@@ -264,6 +271,12 @@ export default{
             }
             // ending
             while(true){
+                null_clock += 1;
+                if(null_clock > 10000){
+                    console.log('Iteration Error, code: 2');
+                    null_clock = 0;
+                    break;
+                }
                 index2 = rehtml.indexOf(src_last);
                 if(index2 < index1){
                     rehtml = rehtml.replace(src_last, '\f');
@@ -273,6 +286,12 @@ export default{
                 }
             }
             while(true){
+                null_clock += 1;
+                if(null_clock > 10000){
+                    console.log('Iteration Error, code: 3');
+                    null_clock = 0;
+                    break;
+                }
                 let slice3 = rehtml.slice(index1, rehtml.length + 1);
                 index2 = slice3.indexOf(src_last);
                 let slice4 = remove_wrapper(slice3, '\0', 1);
@@ -499,6 +518,11 @@ export default{
         bin.$on('content',
             (title) => this.read_content(title)
         );
+        bin.$on('skip-edit',
+            (flag) => {
+                this.skip_edit = true;
+            }
+        );
         // test selector signal
         bin.$on('test',
             // test portal here
@@ -507,6 +531,11 @@ export default{
     },
     watch:{
         tempText(){
+            // skip read article
+            if(this.skip_edit == true){
+                this.skip_edit = false;
+                return 1;
+            }
             let debug_lock = 0;
             let placeholder = "内容将会在这里显示";
             let editor_main = document.getElementById('editor_main');
@@ -619,7 +648,8 @@ export default{
 
 <style scoped>
 .editor_bgc{
-    background-color: lightblue;
+    border: 1px solid #000;
+    box-sizing: border-box;
     position: absolute;
     left: 200px;
     top: 100px;
@@ -627,17 +657,22 @@ export default{
     height: 600px;
 }
 .editor_main2{
+    box-sizing: border-box;
     height: 300px;
     width: 750px;
     margin: 20px auto;
 }
 .show_pad2{
+    box-sizing: border-box;
+    border: 1px solid #000;
     height: 200px;
     width: 750px;
     margin: 20px auto;
-    margin-left: 35px;
+    margin-left: 25px;
     text-align: left;
     white-space: pre-wrap;
+    padding-top: 10px;
+    padding-left: 15px;
     /*
         pre-wrap: 遇到换行不换行
     */

@@ -7,11 +7,11 @@
             class="title_bar"
         >
         </el-input>
-        <el-button class="btn" type="primary" @click="bold">粗体</el-button>
-        <el-button class="btn" type="primary" @click="italic">斜体</el-button>
-        <el-button class="btn" type="primary" @click="underline">下划线</el-button>
-        <el-button class="btn" type="primary" @click="clear">清空</el-button>
-        <el-button class="btn" type="primary" @click="save">保存</el-button>
+        <el-button class="btn" @click="bold">粗体</el-button>
+        <el-button class="btn" @click="italic">斜体</el-button>
+        <el-button class="btn" @click="underline">下划线</el-button>
+        <el-button class="btn" @click="clear">清空</el-button>
+        <el-button class="btn" @click="save">保存</el-button>
         <!--
         <el-button class="btn" type="primary" @click="test">测试</el-button>
         -->
@@ -72,20 +72,25 @@ export default{
 
 <style scoped>
 .headbox{
+    border: 1px solid #000;
+    box-sizing: border-box;
     position: absolute;
     top: 0;
     left: 200px;
     height: 100px;
     width: 800px;
-    background-color: lightgreen;
 }
 .headbox>.btn{
-    line-height: 25px;
     margin-top: 25px;
+    height: 50px;
+    border-radius: 10px;
 }
 .title_bar{
+    margin-top: 25px;
+    height: 50px;
     width: 200px;
     position: relative;
     right: 50px;
+    line-height: 50px;
 }
 </style>

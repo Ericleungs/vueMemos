@@ -1,9 +1,24 @@
 <template>
   <div id="app">
-    <sidebar></sidebar>
-    <headbox></headbox>
-    <editor></editor>
-    <rtbutton></rtbutton>
+    <!--
+      注意： 这里需要内联，不然会被element本身的UI覆盖掉
+    -->
+    <el-container>
+      <el-aside style="width: 200px">
+        <sidebar></sidebar>
+      </el-aside>
+      <el-container>
+        <el-header style="height: 100px">
+          <headbox></headbox>
+        </el-header>
+        <el-main>
+          <editor></editor>
+        </el-main>
+        <el-footer>
+          <rtbutton></rtbutton>
+        </el-footer>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
@@ -21,11 +36,6 @@ export default {
     headbox,
     rtbutton
   },
-  methods:{
-    a(){
-      console.log(`helloworld`);
-    }
-  },
 }
 </script>
 
@@ -36,15 +46,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-#app{
-  height: 700px;
 
+  height: 700px;
   width: 1000px;
   position: absolute;
   left: 50%;
   margin-left: -500px;
-  background-color: yellow;
 
   /*
     水平居中：

@@ -1,5 +1,10 @@
 <template>
-    <div id='menu' ref='menu' class='rtmenu_decorator' :style="{visibility: vis, left:x, top:y}">
+    <div 
+        id='menu' ref='menu' 
+        class='rtmenu_decorator' 
+        :style="{left:x, top:y}" 
+        v-show="visible"
+    >
         <ul>
             <li @click="rtbtnSelection('rename')">重命名</li>
             <li @click="rtbtnSelection('delete')">删除</li>
@@ -19,7 +24,8 @@ export default{
             // visible || hidden
             vis: 'hidden',
             top: '10px',
-            left: '10px'
+            left: '10px',
+            visible: false
         }
     },
     created(){
@@ -35,7 +41,8 @@ export default{
                 if(y < 0){
                     y = -y;
                 }
-                this.vis = 'visible';
+                // this.vis = 'visible';
+                this.visible = true;
                 // micro adjustment, the source is x without bias
                 this.x = x + 'px';
                 this.y = y + 'px';
@@ -54,7 +61,8 @@ export default{
     methods:{
         rtbtnSelection(option){
             if(option == 'close'){
-                this.vis = 'hidden';
+                // this.vis = 'hidden';
+                this.visible = false;
             }
             else if(option == 'rename'){
                 bin.$emit('rtBtnMenu', 'rename');
